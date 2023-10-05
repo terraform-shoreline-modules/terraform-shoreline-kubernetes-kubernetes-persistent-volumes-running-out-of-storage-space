@@ -1,0 +1,146 @@
+{
+  "name": "kubernetes_persistent_volumes_running_out_of_storage_space",
+  "description": "This incident type refers to a situation where the persistent volumes used in a software application are running out of storage space. Persistent volumes are used to store data in a containerized environment, and if the storage space is limited, it can lead to errors and service disruptions. This issue can occur due to various reasons such as a sudden increase in data volume, incorrect configuration, or inefficient utilization of storage resources. It is crucial to monitor and manage the available storage space to ensure the smooth functioning of the software application.",
+  "params": [
+    {
+      "name": "PVC_NAME",
+      "value": ""
+    },
+    {
+      "name": "PV_NAME",
+      "value": ""
+    },
+    {
+      "name": "POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "NEW_SIZE",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kubernetes - Persistent Volumes Running Out of Storage Space.\nThis incident type refers to a situation where the persistent volumes used in a software application are running out of storage space. Persistent volumes are used to store data in a containerized environment, and if the storage space is limited, it can lead to errors and service disruptions. This issue can occur due to various reasons such as a sudden increase in data volume, incorrect configuration, or inefficient utilization of storage resources. It is crucial to monitor and manage the available storage space to ensure the smooth functioning of the software application."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List all persistent volumes in the cluster"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pv`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the usage and capacity of each persistent volume"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe pv ${PV_NAME}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the usage and capacity of the persistent volume claim(s) that use the persistent volume"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe pvc -n ${NAMESPACE} ${PVC_NAME}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the usage and capacity of the pod(s) that use the persistent volume claim(s)"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe pod -n ${NAMESPACE} ${POD_NAME}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs of the pod(s) to see if there are any errors related to storage"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs -n ${NAMESPACE} ${POD_NAME}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any pending events related to storage in the cluster"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get events`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if there are any nodes with low disk space available"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe node`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## There might be a sudden increase in data volume that the persistent volume cannot handle."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_pv_space_check($PV_NAME)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increase the storage capacity of the persistent volumes."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_increase_pvc_size($PVC_NAME, $NEW_SIZE)"
+    }
+  ]
+}
